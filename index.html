@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生会报名系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb', // 主色调：蓝色，代表信任和专业
+                        secondary: '#f97316', // 辅助色：橙色，代表活力和热情
+                        neutral: '#f3f4f6', // 中性色：浅灰
+                        dark: '#1e293b', // 深色：深灰
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-custom {
+                transition: all 0.3s ease;
+            }
+            .card-hover {
+                @apply hover:shadow-lg hover:-translate-y-1 transition-all duration-300;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark min-h-screen flex flex-col">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-white/95 shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-university text-primary text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-primary">学生会报名系统</h1>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="nav-link font-medium hover:text-primary transition-custom">首页</a>
+                <a href="#introduction" class="nav-link font-medium hover:text-primary transition-custom">部门介绍</a>
+                <a href="#form" class="nav-link font-medium hover:text-primary transition-custom">报名表单</a>
+                <a href="#stats" class="nav-link font-medium hover:text-primary transition-custom">报名统计</a>
+                <button id="adminBtn" class="nav-link font-medium hover:text-primary transition-custom flex items-center">
+                    <i class="fa fa-user-circle mr-1"></i> 管理员
+                </button>
+            </nav>
+            
+            <button id="mobileMenuBtn" class="md:hidden text-dark focus:outline-none">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端菜单 -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#home" class="py-2 hover:text-primary transition-custom">首页</a>
+                <a href="#introduction" class="py-2 hover:text-primary transition-custom">部门介绍</a>
+                <a href="#form" class="py-2 hover:text-primary transition-custom">报名表单</a>
+                <a href="#stats" class="py-2 hover:text-primary transition-custom">报名统计</a>
+                <button id="mobileAdminBtn" class="py-2 text-left hover:text-primary transition-custom flex items-center">
+                    <i class="fa fa-user-circle mr-1"></i> 管理员
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow pt-16">
+        <!-- 英雄区域 -->
+        <section id="home" class="bg-gradient-to-br from-primary to-blue-700 text-white py-16 md:py-24">
+            <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-shadow mb-4">
+                        加入学生会<br>展现你的才华
+                    </h2>
+                    <p class="text-lg md:text-xl opacity-90 mb-8 max-w-lg">
+                        学生会是连接学校与学生的桥梁，加入我们，一起为同学们服务，锻炼能力，结交挚友。
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#form" class="bg-white text-primary hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-custom text-center">
+                            立即报名
+                        </a>
+                        <a href="#introduction" class="bg-transparent border-2 border-white hover:bg-white/10 font-semibold py-3 px-6 rounded-lg transition-custom text-center">
+                            了解部门
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="https://picsum.photos/seed/student/600/400" alt="学生会活动照片" class="rounded-xl shadow-2xl w-full max-w-lg object-cover h-auto transform rotate-1 hover:rotate-0 transition-custom">
+                </div>
+            </div>
+            
+            <!-- 报名时间 -->
+            <div class="container mx-auto px-4 mt-16 bg-white/10 backdrop-blur-sm rounded-xl p-6 max-w-3xl">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-4 md:mb-0">
+                        <h3 class="text-xl font-semibold mb-1">报名时间</h3>
+                        <p class="opacity-90" id="registrationDateDisplay">2023年9月1日 - 2023年9月15日</p>
+                    </div>
+                    <div class="flex items-center">
+                        <div id="countdown" class="flex space-x-4">
+                            <div class="bg-white/20 rounded-lg p-3 text-center">
+                                <div id="days" class="text-2xl font-bold">00</div>
+                                <div class="text-sm opacity-90">天</div>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-3 text-center">
+                                <div id="hours" class="text-2xl font-bold">00</div>
+                                <div class="text-sm opacity-90">时</div>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-3 text-center">
+                                <div id="minutes" class="text-2xl font-bold">00</div>
+                                <div class="text-sm opacity-90">分</div>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-3 text-center">
+                                <div id="seconds" class="text-2xl font-bold">00</div>
+                                <div class="text-sm opacity-90">秒</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 部门介绍 -->
+        <section id="introduction" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">学生会部门介绍</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">学生会下设多个部门，每个部门都有其独特的职责和功能，欢迎根据自己的兴趣和特长选择合适的部门。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- 人事部 -->
+                    <div class="bg-neutral rounded-xl overflow-hidden shadow-md card-hover">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://picsum.photos/seed/hr/600/400" alt="人事部活动照片" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center mb-3">
+                                <i class="fa fa-users text-primary text-xl mr-2"></i>
+                                <h3 class="text-xl font-bold">人事部</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">负责学生会成员的招聘、培训、考核和管理，协调各部门之间的工作，是学生会的"粘合剂"。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">组织管理</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">沟通协调</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">人才培养</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 组织部 -->
+                    <div class="bg-neutral rounded-xl overflow-hidden shadow-md card-hover">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://picsum.photos/seed/organization/600/400" alt="组织部活动照片" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center mb-3">
+                                <i class="fa fa-sitemap text-primary text-xl mr-2"></i>
+                                <h3 class="text-xl font-bold">组织部</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">负责学生会各项活动的策划与组织，制定工作计划，确保各项活动顺利开展并达到预期效果。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">活动策划</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">流程安排</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">组织协调</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 校管部 -->
+                    <div class="bg-neutral rounded-xl overflow-hidden shadow-md card-hover">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://picsum.photos/seed/campus/600/400" alt="校管部活动照片" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center mb-3">
+                                <i class="fa fa-building text-primary text-xl mr-2"></i>
+                                <h3 class="text-xl font-bold">校管部</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">负责维护校园秩序，管理学生日常行为规范，处理学生反馈的校园管理问题，改善校园环境。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">秩序维护</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">环境管理</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">问题处理</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 媒体部 -->
+                    <div class="bg-neutral rounded-xl overflow-hidden shadow-md card-hover">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://picsum.photos/seed/media/600/400" alt="媒体部活动照片" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center mb-3">
+                                <i class="fa fa-camera text-primary text-xl mr-2"></i>
+                                <h3 class="text-xl font-bold">媒体部</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">负责学生会活动的宣传报道、摄影摄像、新媒体运营及校园文化产品的设计与制作。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">摄影摄像</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">新媒体运营</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">设计制作</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 文艺部 -->
+                    <div class="bg-neutral rounded-xl overflow-hidden shadow-md card-hover">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://picsum.photos/seed/art/600/400" alt="文艺部活动照片" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center mb-3">
+                                <i class="fa fa-music text-primary text-xl mr-2"></i>
+                                <h3 class="text-xl font-bold">文艺部</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">负责组织各类校园文艺活动，发掘和培养学生文艺特长，丰富校园文化生活，提升艺术氛围。</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">文艺活动</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">才艺发掘</span>
+                                <span class="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">氛围营造</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 报名表单 -->
+        <section id="form" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">学生会报名表单</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">请填写以下信息完成报名，我们会在收到报名后尽快与你联系安排面试。</p>
+                </div>
+                
+                <div id="registrationClosedNotice" class="max-w-3xl mx-auto bg-red-50 border border-red-200 rounded-xl p-6 mb-8 hidden">
+                    <div class="flex items-start">
+                        <i class="fa fa-exclamation-circle text-red-500 mt-1 mr-3 text-xl"></i>
+                        <div>
+                            <h3 class="font-semibold text-red-800 mb-1">报名已关闭</h3>
+                            <p class="text-red-700 text-sm">当前报名时间已过或未开始，请关注最新通知。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden" id="registrationFormContainer">
+                    <div class="p-6 md:p-8">
+                        <form id="registrationForm" class="space-y-6">
+                            <!-- 个人信息 -->
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4 pb-2 border-b border-gray-200">个人信息</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="name" class="block text-gray-700 font-medium mb-2">姓名 <span class="text-red-500">*</span></label>
+                                        <input type="text" id="name" name="name" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
+                                            placeholder="请输入你的姓名">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="class" class="block text-gray-700 font-medium mb-2">班级 <span class="text-red-500">*</span></label>
+                                        <input type="text" id="class" name="class" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
+                                            placeholder="请输入你的班级">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="gender" class="block text-gray-700 font-medium mb-2">性别 <span class="text-red-500">*</span></label>
+                                        <select id="gender" name="gender" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                            <option value="">请选择</option>
+                                            <option value="男">男</option>
+                                            <option value="女">女</option>
+                                            <option value="其他">其他</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="grade" class="block text-gray-700 font-medium mb-2">期数 <span class="text-red-500">*</span></label>
+                                        <select id="grade" name="grade" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                            <option value="">请选择</option>
+                                            <option value="一期">一期</option>
+                                            <option value="二期">二期</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="major" class="block text-gray-700 font-medium mb-2">专业 <span class="text-red-500">*</span></label>
+                                        <select id="major" name="major" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                            <option value="">请选择</option>
+                                            <option value="数字媒体">数字媒体</option>
+                                            <option value="人工智能">人工智能</option>
+                                            <option value="网络工程">网络工程</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="contact" class="block text-gray-700 font-medium mb-2">联系电话 <span class="text-red-500">*</span></label>
+                                        <input type="tel" id="contact" name="contact" required
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
+                                            placeholder="请输入你的联系电话">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 报名部门 -->
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4 pb-2 border-b border-gray-200">报名部门</h3>
+                                
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-500 mb-2">请选择意向部门（最多选择2个）</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="dept1" name="departments" value="人事部"
+                                                class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded department-checkbox">
+                                            <label for="dept1" class="ml-2 text-gray-700">人事部</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="dept2" name="departments" value="组织部"
+                                                class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded department-checkbox">
+                                            <label for="dept2" class="ml-2 text-gray-700">组织部</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="dept3" name="departments" value="校管部"
+                                                class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded department-checkbox">
+                                            <label for="dept3" class="ml-2 text-gray-700">校管部</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="dept4" name="departments" value="媒体部"
+                                                class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded department-checkbox">
+                                            <label for="dept4" class="ml-2 text-gray-700">媒体部</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="dept5" name="departments" value="文艺部"
+                                                class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded department-checkbox">
+                                            <label for="dept5" class="ml-2 text-gray-700">文艺部</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <label for="firstChoice" class="block text-gray-700 font-medium mb-2">第一志愿部门 <span class="text-red-500">*</span></label>
+                                    <select id="firstChoice" name="firstChoice" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                        <option value="">请选择</option>
+                                        <option value="人事部">人事部</option>
+                                        <option value="组织部">组织部</option>
+                                        <option value="校管部">校管部</option>
+                                        <option value="媒体部">媒体部</option>
+                                        <option value="文艺部">文艺部</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <label for="secondChoice" class="block text-gray-700 font-medium mb-2">第二志愿部门</label>
+                                    <select id="secondChoice" name="secondChoice"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                        <option value="">不选择</option>
+                                        <option value="人事部">人事部</option>
+                                        <option value="组织部">组织部</option>
+                                        <option value="校管部">校管部</option>
+                                        <option value="媒体部">媒体部</option>
+                                        <option value="文艺部">文艺部</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- 个人陈述 -->
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4 pb-2 border-b border-gray-200">个人陈述</h3>
+                                
+                                <div class="mb-4">
+                                    <label for="advantages" class="block text-gray-700 font-medium mb-2">你的优势和特长 <span class="text-red-500">*</span></label>
+                                    <textarea id="advantages" name="advantages" rows="3" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
+                                        placeholder="请描述你的优势和特长"></textarea>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="experience" class="block text-gray-700 font-medium mb-2">相关经历（如学生工作、社会实践等）</label>
+                                    <textarea id="experience" name="experience" rows="3"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
+                                        placeholder="请描述你的相关经历"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label for="motivation" class="block text-gray-700 font-medium mb-2">加入学生会的原因和期望 <span class="text-red-500">*</span></label>
+                                    <textarea id="motivation" name="motivation" rows="3" required
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
+                                        placeholder="请描述你加入学生会的原因和期望"></textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- 提交按钮 -->
+                            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                                <button type="button" id="previewBtn" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-custom">
+                                    <i class="fa fa-eye mr-2"></i> 预览信息
+                                </button>
+                                <button type="submit" class="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-custom">
+                                    <i class="fa fa-paper-plane mr-2"></i> 提交报名
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 报名统计 -->
+        <section id="stats" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">报名情况统计</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">实时了解各部门的报名情况，帮助你做出更合适的选择。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <!-- 部门报名人数统计图表 -->
+                    <div class="bg-neutral rounded-xl p-6 shadow-md">
+                        <h3 class="text-lg font-semibold mb-4">各部门报名人数统计</h3>
+                        <div class="h-80">
+                            <canvas id="departmentChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 期数报名人数统计图表 -->
+                    <div class="bg-neutral rounded-xl p-6 shadow-md">
+                        <h3 class="text-lg font-semibold mb-4">各期报名人数统计</h3>
+                        <div class="h-80">
+                            <canvas id="gradeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 总报名人数卡片 -->
+                <div class="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-primary/10 rounded-xl p-6 text-center shadow-sm">
+                        <div class="text-4xl font-bold text-primary mb-2" id="totalApplications">0</div>
+                        <div class="text-gray-600">总报名人数</div>
+                    </div>
+                    <div class="bg-secondary/10 rounded-xl p-6 text-center shadow-sm">
+                        <div class="text-4xl font-bold text-secondary mb-2" id="maleApplications">0</div>
+                        <div class="text-gray-600">男生报名人数</div>
+                    </div>
+                    <div class="bg-green-500/10 rounded-xl p-6 text-center shadow-sm">
+                        <div class="text-4xl font-bold text-green-500 mb-2" id="femaleApplications">0</div>
+                        <div class="text-gray-600">女生报名人数</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa fa-university text-white text-2xl"></i>
+                        <h3 class="text-xl font-bold">学生会报名系统</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        学生会是连接学校与学生的桥梁，我们致力于为同学们服务，丰富校园生活。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-custom">
+                            <i class="fa fa-weixin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-custom">
+                            <i class="fa fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-custom">
+                            <i class="fa fa-qq text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition-custom">首页</a></li>
+                        <li><a href="#introduction" class="text-gray-400 hover:text-white transition-custom">部门介绍</a></li>
+                        <li><a href="#form" class="text-gray-400 hover:text-white transition-custom">报名表单</a></li>
+                        <li><a href="#stats" class="text-gray-400 hover:text-white transition-custom">报名统计</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fa fa-map-marker text-gray-400 mt-1 mr-3"></i>
+                            <span class="text-gray-400">学校学生会办公室</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone text-gray-400 mr-3"></i>
+                            <span class="text-gray-400">010-12345678</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope text-gray-400 mr-3"></i>
+                            <span class="text-gray-400">studentunion@school.edu</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+                <p>&copy; 2023 学校学生会. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 预览模态框 -->
+    <div id="previewModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold">报名信息预览</h3>
+                <button id="closePreviewBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="previewContent" class="p-6 space-y-4">
+                <!-- 预览内容将通过JS动态填充 -->
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end">
+                <button id="confirmSubmitBtn" class="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-6 rounded-lg transition-custom">
+                    确认提交
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交成功模态框 -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full text-center p-8">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa fa-check text-green-500 text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">报名成功！</h3>
+            <p class="text-gray-600 mb-6">
+                感谢你的报名，我们会在3个工作日内通过短信通知你面试时间和地点，请保持手机畅通。
+            </p>
+            <button id="closeSuccessBtn" class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-8 rounded-lg transition-custom w-full">
+                完成
+            </button>
+        </div>
+    </div>
+
+    <!-- 管理员登录模态框 -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold">管理员登录</h3>
+                <button id="closeAdminLoginBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="adminLoginForm" class="space-y-4">
+                    <div>
+                        <label for="adminUsername" class="block text-gray-700 font-medium mb-2">用户名</label>
+                        <input type="text" id="adminUsername" name="adminUsername" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                    </div>
+                    <div>
+                        <label for="adminPassword" class="block text-gray-700 font-medium mb-2">密码</label>
+                        <input type="password" id="adminPassword" name="adminPassword" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                    </div>
+                    <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-custom w-full">
+                        登录
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员面板 -->
+    <div id="adminPanel" class="fixed inset-0 bg-black/50 z-50 hidden">
+        <div class="bg-white h-full w-full max-w-6xl ml-auto overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold">管理员面板</h3>
+                <div class="flex items-center space-x-4">
+                    <span id="adminName" class="text-gray-600">管理员</span>
+                    <button id="logoutBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-sign-out text-xl"></i>
+                    </button>
+                    <button id="closeAdminPanelBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- 左侧导航 -->
+                    <div class="md:w-1/4">
+                        <div class="bg-neutral rounded-xl p-4">
+                            <h4 class="font-semibold mb-4">管理菜单</h4>
+                            <ul class="space-y-2">
+                                <li>
+                                    <button id="menuApplications" class="admin-menu-btn w-full text-left px-3 py-2 rounded-lg bg-primary text-white">
+                                        报名列表
+                                    </button>
+                                </li>
+                                <li>
+                                    <button id="menuStatistics" class="admin-menu-btn w-full text-left px-3 py-2 rounded-lg hover:bg-gray-200 transition-custom">
+                                        报名统计
+                                    </button>
+                                </li>
+                                <li>
+                                    <button id="menuSettings" class="admin-menu-btn w-full text-left px-3 py-2 rounded-lg hover:bg-gray-200 transition-custom">
+                                        系统设置
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧内容 -->
+                    <div class="md:w-3/4">
+                        <!-- 报名列表 -->
+                        <div id="applicationsList" class="admin-content">
+                            <div class="flex justify-between items-center mb-6">
+                                <h4 class="text-lg font-semibold">报名列表</h4>
+                                <div class="flex items-center gap-4">
+                                    <div class="relative">
+                                        <input type="text" id="searchApplications" placeholder="搜索姓名或班级"
+                                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+                                    <select id="filterDepartment"
+                                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                        <option value="">所有部门</option>
+                                        <option value="人事部">人事部</option>
+                                        <option value="组织部">组织部</option>
+                                        <option value="校管部">校管部</option>
+                                        <option value="媒体部">媒体部</option>
+                                        <option value="文艺部">文艺部</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="overflow-x-auto bg-white rounded-xl shadow-sm">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                姓名
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                班级
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                期数专业
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                志愿部门
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                联系电话
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                报名时间
+                                            </th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                操作
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="applicationsTableBody" class="bg-white divide-y divide-gray-200">
+                                        <!-- 表格内容将通过JS动态填充 -->
+                                        <tr>
+                                            <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                                                暂无报名数据
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- 分页 -->
+                            <div class="flex justify-between items-center mt-6">
+                                <div class="text-gray-600 text-sm">
+                                    显示 <span id="showingRange">0-0</span> 条，共 <span id="totalCount">0</span> 条
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button id="prevPage" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                        上一页
+                                    </button>
+                                    <button id="nextPage" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                        下一页
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 报名统计 -->
+                        <div id="statisticsContent" class="admin-content hidden">
+                            <h4 class="text-lg font-semibold mb-6">报名统计</h4>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div class="bg-neutral rounded-xl p-6">
+                                    <h5 class="font-medium mb-4">部门报名分布</h5>
+                                    <div class="h-64">
+                                        <canvas id="adminDepartmentChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="bg-neutral rounded-xl p-6">
+                                    <h5 class="font-medium mb-4">期数报名分布</h5>
+                                    <div class="h-64">
+                                        <canvas id="adminGradeChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div class="bg-primary/10 rounded-xl p-6">
+                                    <div class="text-sm text-gray-600 mb-1">总报名人数</div>
+                                    <div class="text-3xl font-bold text-primary" id="adminTotalApplications">0</div>
+                                </div>
+                                <div class="bg-secondary/10 rounded-xl p-6">
+                                    <div class="text-sm text-gray-600 mb-1">男生比例</div>
+                                    <div class="text-3xl font-bold text-secondary" id="adminMaleRatio">0%</div>
+                                </div>
+                                <div class="bg-green-500/10 rounded-xl p-6">
+                                    <div class="text-sm text-gray-600 mb-1">女生比例</div>
+                                    <div class="text-3xl font-bold text-green-500" id="adminFemaleRatio">0%</div>
+                                </div>
+                                <div class="bg-purple-500/10 rounded-xl p-6">
+                                    <div class="text-sm text-gray-600 mb-1">今日新增</div>
+                                    <div class="text-3xl font-bold text-purple-500" id="adminTodayNew">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 系统设置 -->
+                        <div id="settingsContent" class="admin-content hidden">
+                            <h4 class="text-lg font-semibold mb-6">系统设置</h4>
+                            
+                            <form id="settingsForm" class="space-y-6">
+                                <div>
+                                    <label for="registrationStartDate" class="block text-gray-700 font-medium mb-2">报名开始日期</label>
+                                    <input type="date" id="registrationStartDate" name="registrationStartDate"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                </div>
+                                
+                                <div>
+                                    <label for="registrationEndDate" class="block text-gray-700 font-medium mb-2">报名结束日期</label>
+                                    <input type="date" id="registrationEndDate" name="registrationEndDate"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2">开启报名</label>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="enableRegistration" name="enableRegistration" checked
+                                            class="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded">
+                                        <label for="enableRegistration" class="ml-2 text-gray-700">允许用户提交报名</label>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="adminNewPassword" class="block text-gray-700 font-medium mb-2">修改管理员密码</label>
+                                    <input type="password" id="adminNewPassword" name="adminNewPassword"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-custom"
+                                        placeholder="不修改请留空">
+                                </div>
+                                
+                                <button type="submit" class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-custom">
+                                    保存设置
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <div id="detailModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold">报名详情</h3>
+                <button id="closeDetailBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="detailContent" class="p-6 space-y-6">
+                <!-- 详情内容将通过JS动态填充 -->
+            </div>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-4">
+                <button id="downloadDetailBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-6 rounded-lg transition-custom">
+                    <i class="fa fa-download mr-2"></i> 下载信息
+                </button>
+                <button id="deleteDetailBtn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg transition-custom">
+                    <i class="fa fa-trash mr-2"></i> 删除
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div id="toast" class="fixed top-20 right-4 bg-dark text-white px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 flex items-center z-50">
+        <i id="toastIcon" class="fa fa-check-circle mr-2"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // 存储报名数据的数组
+        let applications = [];
+        let currentPage = 1;
+        const pageSize = 10;
+        let filteredApplications = [];
+        
+        // 模拟管理员账号密码（实际应用中应该使用加密存储）
+        const adminCredentials = {
+            username: 'admin',
+            password: 'admin123'
+        };
+        
+        // 系统设置
+        let systemSettings = {
+            startDate: '2023-09-01',
+            endDate: '2023-09-15',
+            enableRegistration: true
+        };
+
+        // DOM 加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化导航栏滚动效果
+            initNavbarScroll();
+            
+            // 初始化移动端菜单
+            initMobileMenu();
+            
+            // 初始化倒计时
+            initCountdown();
+            
+            // 初始化表单提交
+            initFormSubmission();
+            
+            // 初始化部门复选框限制
+            initDepartmentCheckboxLimit();
+            
+            // 初始化预览功能
+            initPreviewFunctionality();
+            
+            // 初始化管理员登录
+            initAdminLogin();
+            
+            // 初始化管理员面板
+            initAdminPanel();
+            
+            // 初始化图表
+            initCharts();
+            
+            // 从本地存储加载数据
+            loadDataFromLocalStorage();
+            
+            // 更新统计数据
+            updateStatistics();
+            
+            // 初始化并显示报名时间
+            updateRegistrationDateDisplay();
+            
+            // 检查报名状态并更新UI
+            checkRegistrationStatus();
+        });
+        
+        // 导航栏滚动效果
+        function initNavbarScroll() {
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('py-2', 'shadow');
+                    navbar.classList.remove('py-3');
+                } else {
+                    navbar.classList.add('py-3');
+                    navbar.classList.remove('py-2', 'shadow');
+                }
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                        
+                        // 关闭移动菜单
+                        document.getElementById('mobileMenu').classList.add('hidden');
+                    }
+                });
+            });
+        }
+        
+        // 移动端菜单
+        function initMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+        
+        // 更新报名时间显示
+        function updateRegistrationDateDisplay() {
+            // 格式化日期为中文格式
+            const startDate = new Date(systemSettings.startDate);
+            const endDate = new Date(systemSettings.endDate);
+            
+            const formattedStartDate = `${startDate.getFullYear()}年${startDate.getMonth() + 1}月${startDate.getDate()}日`;
+            const formattedEndDate = `${endDate.getFullYear()}年${endDate.getMonth() + 1}月${endDate.getDate()}日`;
+            
+            // 更新首页显示
+            document.getElementById('registrationDateDisplay').textContent = `${formattedStartDate} - ${formattedEndDate}`;
+        }
+        
+        // 检查报名状态并更新UI
+        function checkRegistrationStatus() {
+            const now = new Date();
+            const startDate = new Date(systemSettings.startDate);
+            const endDate = new Date(systemSettings.endDate);
+            endDate.setHours(23, 59, 59, 999);
+            
+            const isRegistrationOpen = systemSettings.enableRegistration && now >= startDate && now <= endDate;
+            
+            // 更新UI元素
+            const formContainer = document.getElementById('registrationFormContainer');
+            const closedNotice = document.getElementById('registrationClosedNotice');
+            
+            if (isRegistrationOpen) {
+                formContainer.classList.remove('hidden');
+                closedNotice.classList.add('hidden');
+            } else {
+                formContainer.classList.add('hidden');
+                closedNotice.classList.remove('hidden');
+                
+                // 更新关闭原因文本
+                let reasonText = '';
+                if (!systemSettings.enableRegistration) {
+                    reasonText = '管理员已关闭报名功能';
+                } else if (now < startDate) {
+                    reasonText = `报名尚未开始，开始时间：${formatDate(startDate)}`;
+                } else {
+                    reasonText = `报名已结束，结束时间：${formatDate(endDate)}`;
+                }
+                
+                closedNotice.querySelector('p').textContent = reasonText;
+            }
+        }
+        
+        // 格式化日期为字符串
+        function formatDate(date) {
+            return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+        }
+        
+        // 倒计时功能
+        function initCountdown() {
+            // 获取DOM元素
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            
+            // 存储当前显示的倒计时值，避免不必要的DOM更新
+            let currentValues = {
+                days: '00',
+                hours: '00',
+                minutes: '00',
+                seconds: '00'
+            };
+            
+            function updateCountdown() {
+                const now = new Date();
+                const endDate = new Date(systemSettings.endDate);
+                endDate.setHours(23, 59, 59, 999);
+                
+                const diff = endDate - now;
+                
+                // 如果日期已过或未开始，显示相应信息
+                if (diff <= 0 || now < new Date(systemSettings.startDate)) {
+                    if (currentValues.days !== '00') {
+                        daysEl.textContent = '00';
+                        currentValues.days = '00';
+                    }
+                    if (currentValues.hours !== '00') {
+                        hoursEl.textContent = '00';
+                        currentValues.hours = '00';
+                    }
+                    if (currentValues.minutes !== '00') {
+                        minutesEl.textContent = '00';
+                        currentValues.minutes = '00';
+                    }
+                    if (currentValues.seconds !== '00') {
+                        secondsEl.textContent = '00';
+                        currentValues.seconds = '00';
+                    }
+                    return;
+                }
+                
+                // 计算天、时、分、秒
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                // 格式化数字为两位数
+                const formattedDays = days.toString().padStart(2, '0');
+                const formattedHours = hours.toString().padStart(2, '0');
+                const formattedMinutes = minutes.toString().padStart(2, '0');
+                const formattedSeconds = seconds.toString().padStart(2, '0');
+                
+                // 只有当值发生变化时才更新DOM，减少闪烁
+                if (currentValues.days !== formattedDays) {
+                    daysEl.textContent = formattedDays;
+                    currentValues.days = formattedDays;
+                }
+                if (currentValues.hours !== formattedHours) {
+                    hoursEl.textContent = formattedHours;
+                    currentValues.hours = formattedHours;
+                }
+                if (currentValues.minutes !== formattedMinutes) {
+                    minutesEl.textContent = formattedMinutes;
+                    currentValues.minutes = formattedMinutes;
+                }
+                if (currentValues.seconds !== formattedSeconds) {
+                    secondsEl.textContent = formattedSeconds;
+                    currentValues.seconds = formattedSeconds;
+                }
+            }
+            
+            // 初始化
+            updateCountdown();
+            // 每秒更新一次
+            setInterval(updateCountdown, 1000);
+        }
+        
+        // 部门复选框限制（最多选2个）
+        function initDepartmentCheckboxLimit() {
+            const checkboxes = document.querySelectorAll('.department-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const checkedCount = document.querySelectorAll('.department-checkbox:checked').length;
+                    
+                    // 如果已选中2个，禁用其他未选中的复选框
+                    checkboxes.forEach(cb => {
+                        if (!cb.checked && checkedCount >= 2) {
+                            cb.disabled = true;
+                            cb.parentElement.classList.add('opacity-50');
+                        } else {
+                            cb.disabled = false;
+                            cb.parentElement.classList.remove('opacity-50');
+                        }
+                    });
+                });
+            });
+        }
+        
+        // 表单提交功能
+        function initFormSubmission() {
+            const registrationForm = document.getElementById('registrationForm');
+            
+            registrationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 检查是否开启报名
+                if (!systemSettings.enableRegistration) {
+                    showToast('报名已关闭', 'error');
+                    return;
+                }
+                
+                // 检查当前时间是否在报名期内
+                const now = new Date();
+                const startDate = new Date(systemSettings.startDate);
+                const endDate = new Date(systemSettings.endDate);
+                endDate.setHours(23, 59, 59, 999);
+                
+                if (now < startDate) {
+                    showToast(`报名尚未开始，开始时间：${formatDate(startDate)}`, 'error');
+                    return;
+                }
+                
+                if (now > endDate) {
+                    showToast(`报名已结束，结束时间：${formatDate(endDate)}`, 'error');
+                    return;
+                }
+                
+                // 检查是否选择了部门（至少1个，最多2个）
+                const departmentCheckboxes = document.querySelectorAll('.department-checkbox:checked');
+                if (departmentCheckboxes.length === 0) {
+                    showToast('请至少选择一个意向部门', 'error');
+                    return;
+                }
+                
+                // 收集表单数据
+                const formData = collectFormData();
+                
+                // 添加报名时间
+                formData.timestamp = new Date().toISOString();
+                
+                // 保存数据
+                applications.push(formData);
+                saveDataToLocalStorage();
+                
+                // 更新统计
+                updateStatistics();
+                
+                // 显示成功模态框
+                document.getElementById('successModal').classList.remove('hidden');
+                
+                // 重置表单
+                registrationForm.reset();
+                
+                // 重置复选框状态
+                const checkboxes = document.querySelectorAll('.department-checkbox');
+                checkboxes.forEach(cb => {
+                    cb.disabled = false;
+                    cb.parentElement.classList.remove('opacity-50');
+                });
+            });
+        }
+        
+        // 收集表单数据
+        function collectFormData() {
+            // 收集复选框选中的部门
+            const departments = [];
+            document.querySelectorAll('.department-checkbox:checked').forEach(checkbox => {
+                departments.push(checkbox.value);
+            });
+            
+            return {
+                name: document.getElementById('name').value,
+                class: document.getElementById('class').value,
+                gender: document.getElementById('gender').value,
+                grade: document.getElementById('grade').value,
+                major: document.getElementById('major').value,
+                contact: document.getElementById('contact').value,
+                departments: departments,
+                firstChoice: document.getElementById('firstChoice').value,
+                secondChoice: document.getElementById('secondChoice').value || '无',
+                advantages: document.getElementById('advantages').value,
+                experience: document.getElementById('experience').value || '无',
+                motivation: document.getElementById('motivation').value
+            };
+        }
+        
+        // 预览功能
+        function initPreviewFunctionality() {
+            const previewBtn = document.getElementById('previewBtn');
+            const previewModal = document.getElementById('previewModal');
+            const closePreviewBtn = document.getElementById('closePreviewBtn');
+            const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+            const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+            const previewContent = document.getElementById('previewContent');
+            
+            // 打开预览模态框
+            previewBtn.addEventListener('click', function() {
+                // 验证必填字段
+                const requiredFields = [
+                    'name', 'class', 'gender', 'grade', 'major', 
+                    'contact', 'firstChoice', 'advantages', 'motivation'
+                ];
+                
+                let isValid = true;
+                requiredFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('border-red-500');
+                        setTimeout(() => {
+                            field.classList.remove('border-red-500');
+                        }, 2000);
+                    }
+                });
+                
+                // 检查是否选择了部门（至少1个）
+                const departmentCheckboxes = document.querySelectorAll('.department-checkbox:checked');
+                if (departmentCheckboxes.length === 0) {
+                    isValid = false;
+                    showToast('请至少选择一个意向部门', 'error');
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                // 填充预览内容
+                const formData = collectFormData();
+                previewContent.innerHTML = generatePreviewHTML(formData);
+                
+                // 显示预览模态框
+                previewModal.classList.remove('hidden');
+            });
+            
+            // 关闭预览模态框
+            closePreviewBtn.addEventListener('click', function() {
+                previewModal.classList.add('hidden');
+            });
+            
+            // 确认提交
+            confirmSubmitBtn.addEventListener('click', function() {
+                previewModal.classList.add('hidden');
+                document.getElementById('registrationForm').dispatchEvent(new Event('submit'));
+            });
+            
+            // 关闭成功模态框
+            closeSuccessBtn.addEventListener('click', function() {
+                document.getElementById('successModal').classList.add('hidden');
+            });
+        }
+        
+        // 生成预览HTML
+        function generatePreviewHTML(data) {
+            return `
+                <div class="border-b border-gray-200 pb-4">
+                    <h4 class="font-semibold mb-2">个人信息</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                        <div><span class="text-gray-500">姓名：</span>${data.name}</div>
+                        <div><span class="text-gray-500">班级：</span>${data.class}</div>
+                        <div><span class="text-gray-500">性别：</span>${data.gender}</div>
+                        <div><span class="text-gray-500">期数：</span>${data.grade}</div>
+                        <div><span class="text-gray-500">专业：</span>${data.major}</div>
+                        <div><span class="text-gray-500">联系电话：</span>${data.contact}</div>
+                    </div>
+                </div>
+                
+                <div class="border-b border-gray-200 pb-4">
+                    <h4 class="font-semibold mb-2">报名部门</h4>
+                    <div class="text-sm">
+                        <div><span class="text-gray-500">意向部门：</span>${data.departments.join('、')}</div>
+                        <div><span class="text-gray-500">第一志愿：</span>${data.firstChoice}</div>
+                        <div><span class="text-gray-500">第二志愿：</span>${data.secondChoice}</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-2">个人陈述</h4>
+                    <div class="text-sm space-y-3">
+                        <div>
+                            <span class="text-gray-500 block mb-1">你的优势和特长：</span>
+                            <div>${data.advantages}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-500 block mb-1">相关经历：</span>
+                            <div>${data.experience}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-500 block mb-1">加入学生会的原因和期望：</span>
+                            <div>${data.motivation}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 管理员登录
+        function initAdminLogin() {
+            const adminBtn = document.getElementById('adminBtn');
+            const mobileAdminBtn = document.getElementById('mobileAdminBtn');
+            const adminLoginModal = document.getElementById('adminLoginModal');
+            const closeAdminLoginBtn = document.getElementById('closeAdminLoginBtn');
+            const adminLoginForm = document.getElementById('adminLoginForm');
+            
+            // 打开管理员登录模态框
+            adminBtn.addEventListener('click', function() {
+                adminLoginModal.classList.remove('hidden');
+            });
+            
+            mobileAdminBtn.addEventListener('click', function() {
+                document.getElementById('mobileMenu').classList.add('hidden');
+                adminLoginModal.classList.remove('hidden');
+            });
+            
+            // 关闭管理员登录模态框
+            closeAdminLoginBtn.addEventListener('click', function() {
+                adminLoginModal.classList.add('hidden');
+            });
+            
+            // 管理员登录表单提交
+            adminLoginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('adminUsername').value;
+                const password = document.getElementById('adminPassword').value;
+                
+                if (username === adminCredentials.username && password === adminCredentials.password) {
+                    // 登录成功
+                    adminLoginModal.classList.add('hidden');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    document.getElementById('adminUsername').value = '';
+                    document.getElementById('adminPassword').value = '';
+                    
+                    // 加载报名列表
+                    loadApplications();
+                } else {
+                    showToast('用户名或密码错误', 'error');
+                }
+            });
+        }
+        
+        // 管理员面板
+        function initAdminPanel() {
+            const closeAdminPanelBtn = document.getElementById('closeAdminPanelBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const menuButtons = document.querySelectorAll('.admin-menu-btn');
+            const adminContents = document.querySelectorAll('.admin-content');
+            const searchInput = document.getElementById('searchApplications');
+            const filterDepartment = document.getElementById('filterDepartment');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const settingsForm = document.getElementById('settingsForm');
+            const closeDetailBtn = document.getElementById('closeDetailBtn');
+            const deleteDetailBtn = document.getElementById('deleteDetailBtn');
+            
+            // 关闭管理员面板
+            closeAdminPanelBtn.addEventListener('click', function() {
+                document.getElementById('adminPanel').classList.add('hidden');
+            });
+            
+            // 退出登录
+            logoutBtn.addEventListener('click', function() {
+                document.getElementById('adminPanel').classList.add('hidden');
+                showToast('已退出登录');
+            });
+            
+            // 管理员菜单切换
+            menuButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 获取按钮ID和对应的内容ID
+                    const buttonId = this.id;
+                    let contentId;
+                    
+                    // 根据按钮ID映射到对应的内容ID
+                    switch(buttonId) {
+                        case 'menuApplications':
+                            contentId = 'applicationsList';
+                            break;
+                        case 'menuStatistics':
+                            contentId = 'statisticsContent';
+                            break;
+                        case 'menuSettings':
+                            contentId = 'settingsContent';
+                            break;
+                        default:
+                            contentId = 'applicationsList';
+                    }
+                    
+                    // 移除所有菜单按钮的激活状态
+                    menuButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('hover:bg-gray-200');
+                    });
+                    
+                    // 设置当前按钮为激活状态
+                    this.classList.add('bg-primary', 'text-white');
+                    this.classList.remove('hover:bg-gray-200');
+                    
+                    // 隐藏所有内容
+                    adminContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // 显示对应内容
+                    const contentElement = document.getElementById(contentId);
+                    if (contentElement) {
+                        contentElement.classList.remove('hidden');
+                        
+                        // 如果是统计页面，更新图表
+                        if (contentId === 'statisticsContent') {
+                            updateAdminCharts();
+                        }
+                    }
+                });
+            });
+            
+            // 搜索和筛选
+            searchInput.addEventListener('input', function() {
+                currentPage = 1;
+                loadApplications();
+            });
+            
+            filterDepartment.addEventListener('change', function() {
+                currentPage = 1;
+                loadApplications();
+            });
+            
+            // 分页按钮
+            prevPageBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadApplications();
+                }
+            });
+            
+            nextPageBtn.addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredApplications.length / pageSize);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadApplications();
+                }
+            });
+            
+            // 设置表单提交
+            settingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const startDate = document.getElementById('registrationStartDate').value;
+                const endDate = document.getElementById('registrationEndDate').value;
+                const enableRegistration = document.getElementById('enableRegistration').checked;
+                const newPassword = document.getElementById('adminNewPassword').value;
+                
+                // 验证日期有效性
+                if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+                    showToast('开始日期不能晚于结束日期', 'error');
+                    return;
+                }
+                
+                // 更新系统设置
+                if (startDate) systemSettings.startDate = startDate;
+                if (endDate) systemSettings.endDate = endDate;
+                systemSettings.enableRegistration = enableRegistration;
+                
+                // 更新密码
+                if (newPassword) {
+                    adminCredentials.password = newPassword;
+                    document.getElementById('adminNewPassword').value = '';
+                }
+                
+                // 保存设置
+                saveSystemSettings();
+                
+                // 更新首页显示的报名时间
+                updateRegistrationDateDisplay();
+                
+                // 更新报名状态UI
+                checkRegistrationStatus();
+                
+                // 刷新倒计时
+                initCountdown();
+                
+                showToast('设置已保存');
+            });
+            
+            // 关闭详情模态框
+            closeDetailBtn.addEventListener('click', function() {
+                document.getElementById('detailModal').classList.add('hidden');
+            });
+            
+            // 删除报名信息
+            deleteDetailBtn.addEventListener('click', function() {
+                const index = this.getAttribute('data-index');
+                if (index !== null) {
+                    applications.splice(index, 1);
+                    saveDataToLocalStorage();
+                    loadApplications();
+                    updateStatistics();
+                    document.getElementById('detailModal').classList.add('hidden');
+                    showToast('报名信息已删除');
+                }
+            });
+            
+            // 初始化设置表单
+            document.getElementById('registrationStartDate').value = systemSettings.startDate;
+            document.getElementById('registrationEndDate').value = systemSettings.endDate;
+            document.getElementById('enableRegistration').checked = systemSettings.enableRegistration;
+        }
+        
+        // 加载报名列表
+        function loadApplications() {
+            const searchTerm = document.getElementById('searchApplications').value.toLowerCase();
+            const departmentFilter = document.getElementById('filterDepartment').value;
+            
+            // 筛选数据
+            filteredApplications = applications.filter(app => {
+                const matchesSearch = app.name.toLowerCase().includes(searchTerm) || 
+                                     app.class.toLowerCase().includes(searchTerm);
+                const matchesDepartment = !departmentFilter || 
+                                         app.firstChoice === departmentFilter || 
+                                         app.secondChoice === departmentFilter ||
+                                         app.departments.includes(departmentFilter);
+                return matchesSearch && matchesDepartment;
+            });
+            
+            // 排序（按时间倒序）
+            filteredApplications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // 分页
+            const totalPages = Math.ceil(filteredApplications.length / pageSize);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, filteredApplications.length);
+            const paginatedData = filteredApplications.slice(startIndex, endIndex);
+            
+            // 更新表格
+            const tableBody = document.getElementById('applicationsTableBody');
+            if (paginatedData.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                            暂无符合条件的报名数据
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = '';
+                paginatedData.forEach((app, index) => {
+                    const originalIndex = applications.findIndex(a => a.timestamp === app.timestamp);
+                    const date = new Date(app.timestamp);
+                    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    
+                    const row = document.createElement('tr');
+                    row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">${app.name}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${app.class}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${app.grade} ${app.major}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${app.firstChoice}${app.secondChoice ? ' / ' + app.secondChoice : ''}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">${app.contact}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${formattedDate}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="view-detail text-primary hover:text-primary/80" data-index="${originalIndex}">
+                                查看详情
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // 添加查看详情事件
+                document.querySelectorAll('.view-detail').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = this.getAttribute('data-index');
+                        showApplicationDetail(index);
+                    });
+                });
+            }
+            
+            // 更新分页信息
+            document.getElementById('showingRange').textContent = filteredApplications.length > 0 ? 
+                `${startIndex + 1}-${endIndex}` : '0-0';
+            document.getElementById('totalCount').textContent = filteredApplications.length;
+            
+            // 更新分页按钮状态
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+        }
+        
+        // 显示报名详情
+        function showApplicationDetail(index) {
+            const app = applications[index];
+            if (!app) return;
+            
+            const detailContent = document.getElementById('detailContent');
+            const date = new Date(app.timestamp);
+            const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+            
+            detailContent.innerHTML = `
+                <div class="border-b border-gray-200 pb-4">
+                    <h4 class="font-semibold mb-2">基本信息</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 text-sm">
+                        <div><span class="text-gray-500">姓名：</span>${app.name}</div>
+                        <div><span class="text-gray-500">班级：</span>${app.class}</div>
+                        <div><span class="text-gray-500">性别：</span>${app.gender}</div>
+                        <div><span class="text-gray-500">期数：</span>${app.grade}</div>
+                        <div><span class="text-gray-500">专业：</span>${app.major}</div>
+                        <div><span class="text-gray-500">联系电话：</span>${app.contact}</div>
+                        <div><span class="text-gray-500">报名时间：</span>${formattedDate}</div>
+                    </div>
+                </div>
+                
+                <div class="border-b border-gray-200 pb-4">
+                    <h4 class="font-semibold mb-2">部门志愿</h4>
+                    <div class="text-sm space-y-1">
+                        <div><span class="text-gray-500">意向部门：</span>${app.departments.join('、')}</div>
+                        <div><span class="text-gray-500">第一志愿：</span>${app.firstChoice}</div>
+                        <div><span class="text-gray-500">第二志愿：</span>${app.secondChoice}</div>
+                    </div>
+                </div>
+                
+                <div class="border-b border-gray-200 pb-4">
+                    <h4 class="font-semibold mb-2">个人优势和特长</h4>
+                    <div class="text-sm p-3 bg-gray-50 rounded-lg">${app.advantages}</div>
+                </div>
+                
+                <div class="border-b border-gray-200 pb-4">
+                    <h4 class="font-semibold mb-2">相关经历</h4>
+                    <div class="text-sm p-3 bg-gray-50 rounded-lg">${app.experience}</div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-2">加入学生会的原因和期望</h4>
+                    <div class="text-sm p-3 bg-gray-50 rounded-lg">${app.motivation}</div>
+                </div>
+            `;
+            
+            // 设置删除按钮的索引
+            document.getElementById('deleteDetailBtn').setAttribute('data-index', index);
+            
+            // 显示详情模态框
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            // 部门报名人数图表
+            const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+            window.departmentChart = new Chart(departmentCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['人事部', '组织部', '校管部', '媒体部', '文艺部'],
+                    datasets: [{
+                        label: '报名人数',
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(249, 115, 22, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(236, 72, 153, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(37, 99, 235)',
+                            'rgb(249, 115, 22)',
+                            'rgb(16, 185, 129)',
+                            'rgb(139, 92, 246)',
+                            'rgb(236, 72, 153)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 期数报名人数图表
+            const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+            window.gradeChart = new Chart(gradeCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['一期', '二期'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(249, 115, 22, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(37, 99, 235)',
+                            'rgb(249, 115, 22)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // 管理员面板图表
+            const adminDepartmentCtx = document.getElementById('adminDepartmentChart').getContext('2d');
+            window.adminDepartmentChart = new Chart(adminDepartmentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['人事部', '组织部', '校管部', '媒体部', '文艺部'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(249, 115, 22, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(236, 72, 153, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(37, 99, 235)',
+                            'rgb(249, 115, 22)',
+                            'rgb(16, 185, 129)',
+                            'rgb(139, 92, 246)',
+                            'rgb(236, 72, 153)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            const adminGradeCtx = document.getElementById('adminGradeChart').getContext('2d');
+            window.adminGradeChart = new Chart(adminGradeCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['一期', '二期'],
+                    datasets: [{
+                        data: [0, 0],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(249, 115, 22, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(37, 99, 235)',
+                            'rgb(249, 115, 22)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // 更新统计数据
+        function updateStatistics() {
+            // 计算各部门报名人数
+            const departmentCounts = {
+                '人事部': 0,
+                '组织部': 0,
+                '校管部': 0,
+                '媒体部': 0,
+                '文艺部': 0
+            };
+            
+            // 计算各期数报名人数
+            const gradeCounts = {
+                '一期': 0,
+                '二期': 0
+            };
+            
+            // 计算性别比例
+            let maleCount = 0;
+            let femaleCount = 0;
+            
+            // 计算今日新增
+            let todayNew = 0;
+            const today = new Date().toISOString().split('T')[0];
+            
+            applications.forEach(app => {
+                // 部门统计（按第一志愿）
+                if (departmentCounts.hasOwnProperty(app.firstChoice)) {
+                    departmentCounts[app.firstChoice]++;
+                }
+                
+                // 期数统计
+                if (gradeCounts.hasOwnProperty(app.grade)) {
+                    gradeCounts[app.grade]++;
+                }
+                
+                // 性别统计
+                if (app.gender === '男') {
+                    maleCount++;
+                } else if (app.gender === '女') {
+                    femaleCount++;
+                }
+                
+                // 今日新增
+                const appDate = new Date(app.timestamp).toISOString().split('T')[0];
+                if (appDate === today) {
+                    todayNew++;
+                }
+            });
+            
+            // 更新图表数据
+            window.departmentChart.data.datasets[0].data = [
+                departmentCounts['人事部'],
+                departmentCounts['组织部'],
+                departmentCounts['校管部'],
+                departmentCounts['媒体部'],
+                departmentCounts['文艺部']
+            ];
+            window.departmentChart.update();
+            
+            window.gradeChart.data.datasets[0].data = [
+                gradeCounts['一期'],
+                gradeCounts['二期']
+            ];
+            window.gradeChart.update();
+            
+            // 更新统计卡片
+            const total = applications.length;
+            document.getElementById('totalApplications').textContent = total;
+            document.getElementById('maleApplications').textContent = maleCount;
+            document.getElementById('femaleApplications').textContent = femaleCount;
+            
+            // 更新管理员面板统计
+            document.getElementById('adminTotalApplications').textContent = total;
+            
+            const maleRatio = total > 0 ? Math.round((maleCount / total) * 100) : 0;
+            const femaleRatio = total > 0 ? Math.round((femaleCount / total) * 100) : 0;
+            
+            document.getElementById('adminMaleRatio').textContent = `${maleRatio}%`;
+            document.getElementById('adminFemaleRatio').textContent = `${femaleRatio}%`;
+            document.getElementById('adminTodayNew').textContent = todayNew;
+            
+            // 更新管理员图表
+            updateAdminCharts();
+        }
+        
+        // 更新管理员图表
+        function updateAdminCharts() {
+            // 计算各部门报名人数
+            const departmentCounts = {
+                '人事部': 0,
+                '组织部': 0,
+                '校管部': 0,
+                '媒体部': 0,
+                '文艺部': 0
+            };
+            
+            // 计算各期数报名人数
+            const gradeCounts = {
+                '一期': 0,
+                '二期': 0
+            };
+            
+            applications.forEach(app => {
+                // 部门统计（按第一志愿）
+                if (departmentCounts.hasOwnProperty(app.firstChoice)) {
+                    departmentCounts[app.firstChoice]++;
+                }
+                
+                // 期数统计
+                if (gradeCounts.hasOwnProperty(app.grade)) {
+                    gradeCounts[app.grade]++;
+                }
+            });
+            
+            // 更新管理员图表数据
+            if (window.adminDepartmentChart) {
+                window.adminDepartmentChart.data.datasets[0].data = [
+                    departmentCounts['人事部'],
+                    departmentCounts['组织部'],
+                    departmentCounts['校管部'],
+                    departmentCounts['媒体部'],
+                    departmentCounts['文艺部']
+                ];
+                window.adminDepartmentChart.update();
+            }
+            
+            if (window.adminGradeChart) {
+                window.adminGradeChart.data.datasets[0].data = [
+                    gradeCounts['一期'],
+                    gradeCounts['二期']
+                ];
+                window.adminGradeChart.update();
+            }
+        }
+        
+        // 显示提示消息
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // 设置消息和图标
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toastIcon.className = 'fa fa-check-circle mr-2 text-green-500';
+                toast.classList.remove('bg-red-500');
+                toast.classList.add('bg-dark');
+            } else if (type === 'error') {
+                toastIcon.className = 'fa fa-exclamation-circle mr-2 text-yellow-400';
+                toast.classList.remove('bg-dark');
+                toast.classList.add('bg-red-500');
+            }
+            
+            // 显示提示
+            toast.classList.remove('translate-x-full');
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+        
+        // 保存数据到本地存储
+        function saveDataToLocalStorage() {
+            localStorage.setItem('studentUnionApplications', JSON.stringify(applications));
+        }
+        
+        // 从本地存储加载数据
+        function loadDataFromLocalStorage() {
+            const savedApplications = localStorage.getItem('studentUnionApplications');
+            const savedSettings = localStorage.getItem('studentUnionSettings');
+            
+            if (savedApplications) {
+                applications = JSON.parse(savedApplications);
+            }
+            
+            if (savedSettings) {
+                systemSettings = JSON.parse(savedSettings);
+            }
+        }
+        
+        // 保存系统设置
+        function saveSystemSettings() {
+            localStorage.setItem('studentUnionSettings', JSON.stringify(systemSettings));
+        }
+    </script>
+</body>
+</html>
